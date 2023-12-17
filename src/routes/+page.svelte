@@ -77,7 +77,9 @@ $shadows-big:    multiple-box-shadow(100) */
       scaleVector(vectorFromCenter, 1 / (starScale * 6))
     )}
   ></div>
-  <App />
+  <div style:position={"absolute"}>
+    <App />
+  </div>
 </div>
 
 <style>
@@ -101,15 +103,18 @@ $shadows-big:    multiple-box-shadow(100) */
     width: 1px;
     height: 1px;
     background: transparent;
+    position: relative;
   }
   .bg-2 {
     width: 2px;
     height: 2px;
     background: transparent;
+    position: relative;
   }
   .bg-3 {
     width: 3px;
     height: 3px;
     background: transparent;
+    position: relative;
   }
 </style>

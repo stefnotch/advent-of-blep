@@ -4,6 +4,7 @@ Command: npx @threlte/gltf@2.0.1 C:\Coding\Other\advent-of-blep\static\models\mi
 -->
 
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
   import type * as THREE from "three";
   import { Group } from "three";
   import {
@@ -15,7 +16,12 @@ Command: npx @threlte/gltf@2.0.1 C:\Coding\Other\advent-of-blep\static\models\mi
   } from "@threlte/core";
   import { useGltf } from "@threlte/extras";
 
-  type $$Props = Props<THREE.Group>;
+  import { globalSettings } from "./debug-store";
+  const dispatch = createEventDispatcher();
+
+  type $$Props = Props<THREE.Group> & {
+    rotationx?: number;
+  };
   type $$Events = Events<THREE.Group>;
   type $$Slots = Slots<THREE.Group> & { fallback: {}; error: { error: any } };
 
@@ -34,6 +40,35 @@ Command: npx @threlte/gltf@2.0.1 C:\Coding\Other\advent-of-blep\static\models\mi
   const gltf = useGltf<GLTFResult>("/models/minecraft-xmas-chest.glb");
 
   const component = forwardEventHandlers();
+
+  const enterTop = () => {
+    dispatch("entertop");
+  };
+  const leaveTop = () => {
+    dispatch("leavetop");
+  };
+  const enterBottom = () => {
+    dispatch("enterbottom");
+  };
+  const leaveBottom = () => {
+    dispatch("leavebottom");
+  };
+
+  const topOffset: [number, number, number] = [0, 9.5, 6.5];
+  function vec3Add(
+    a: [number, number, number],
+    b: [number, number, number]
+  ): [number, number, number] {
+    return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
+  }
+  function vec3Scale(
+    a: [number, number, number],
+    b: number
+  ): [number, number, number] {
+    return [a[0] * b, a[1] * b, a[2] * b];
+  }
+
+  export let rotationx = 0;
 </script>
 
 <T is={ref} dispose={false} {...$$restProps} bind:this={$component}>
@@ -41,18 +76,24 @@ Command: npx @threlte/gltf@2.0.1 C:\Coding\Other\advent-of-blep\static\models\mi
     <slot name="fallback" />
   {:then gltf}
     <T.Group scale={0.1}>
+      <T.Group position={topOffset} rotation={[rotationx, 0, 0]}>
+        <T.Mesh
+          interactive
+          castShadow
+          receiveShadow
+          on:pointerenter={enterTop}
+          on:pointerleave={leaveTop}
+          geometry={gltf.nodes.node_1.geometry}
+          material={gltf.materials["12212233865295422202"]}
+          position={vec3Add([-8, 0, -8], vec3Scale(topOffset, -1))}
+        /></T.Group
+      >
       <T.Mesh
         interactive
         castShadow
         receiveShadow
-        geometry={gltf.nodes.node_1.geometry}
-        material={gltf.materials["12212233865295422202"]}
-        position={[-8, 0, -8]}
-      />
-      <T.Mesh
-        interactive
-        castShadow
-        receiveShadow
+        on:pointerenter={enterBottom}
+        on:pointerleave={leaveBottom}
         geometry={gltf.nodes.node_2.geometry}
         material={gltf.materials["12212233865295422202"]}
         position={[-8, 0, -8]}

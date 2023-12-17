@@ -2,18 +2,6 @@
   import App from "$lib/components/App.svelte";
   import { spring } from "svelte/motion";
 
-  /*
-  @function multiple-box-shadow ($n) 
-  $value: '#{random(2000)}px #{random(2000)}px #FFF'
-  @for $i from 2 through $n
-    $value: '#{$value} , #{random(2000)}px #{random(2000)}px #FFF'
-
-  @return unquote($value)
-
-$shadows-small:  multiple-box-shadow(700)
-$shadows-medium: multiple-box-shadow(200)
-$shadows-big:    multiple-box-shadow(100) */
-
   const WindowWidth = 2000;
   const WindowHeight = 2000;
 

@@ -1,7 +1,6 @@
 <script lang="ts">
   import App from "$lib/components/App.svelte";
   import { spring } from "svelte/motion";
-
   const WindowWidth = 2000;
   const WindowHeight = 2000;
 

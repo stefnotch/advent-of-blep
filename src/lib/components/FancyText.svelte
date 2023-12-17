@@ -9,7 +9,7 @@
 
   const font = new Promise<Font>((resolve, reject) => {
     loader.load(
-      "/font/Pixel Operator_Regular.json",
+      import.meta.env.BASE_URL + "font/Pixel Operator_Regular.json",
       (loadedFont: Font) => {
         resolve(loadedFont);
       },

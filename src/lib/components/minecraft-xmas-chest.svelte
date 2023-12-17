@@ -16,7 +16,6 @@ Command: npx @threlte/gltf@2.0.1 C:\Coding\Other\advent-of-blep\static\models\mi
   } from "@threlte/core";
   import { useGltf } from "@threlte/extras";
 
-  import { globalSettings } from "./debug-store";
   const dispatch = createEventDispatcher();
 
   type $$Props = Props<THREE.Group> & {
@@ -37,7 +36,9 @@ Command: npx @threlte/gltf@2.0.1 C:\Coding\Other\advent-of-blep\static\models\mi
     };
   };
 
-  const gltf = useGltf<GLTFResult>("/models/minecraft-xmas-chest.glb");
+  const gltf = useGltf<GLTFResult>(
+    import.meta.env.BASE_URL + "models/minecraft-xmas-chest.glb"
+  );
 
   const component = forwardEventHandlers();
 

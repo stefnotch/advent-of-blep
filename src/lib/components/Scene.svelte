@@ -11,6 +11,12 @@
   import { Float, OrbitControls } from "@threlte/extras";
   import { Pane, Slider } from "svelte-tweakpane-ui";
   import Chest from "./minecraft-xmas-chest.svelte";
+  import BigCat from "./models/big-cat.svelte";
+  import BlackAndWhitePusheen from "./models/black-and-white-pusheen.svelte";
+  import LightOrangePusheen from "./models/light-orange-pusheen.svelte";
+  import OrangeCat from "./models/orange-cat.svelte";
+  import OrangePusheen from "./models/orange-pusheen.svelte";
+  import Pusheen from "./models/pusheen.svelte";
   import FancyText from "./FancyText.svelte";
   import { interactivity } from "@threlte/extras";
   import { spring } from "svelte/motion";
@@ -68,6 +74,13 @@
   castShadow
 />
 <T.AmbientLight intensity={0.2} />
+
+<BigCat position={[0, 0, 0]} />
+<BlackAndWhitePusheen position={[0, 0, 0]} />
+<LightOrangePusheen position={[0, 0, 0]} />
+<OrangeCat position={[0, 0, 0]} />
+<OrangePusheen position={[0, 0, 0]} />
+<Pusheen position={[0, 0, 0]} />
 
 {#each chests as chest, index}
   {@const isHovered =

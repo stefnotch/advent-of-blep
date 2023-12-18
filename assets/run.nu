@@ -3,7 +3,7 @@
 
 
 let input = ls source | select name
-let output = $input | get name | path parse | update parent imported | update extension gltf | path join
+let output = $input | get name | path parse | update parent "../static/models" | update extension gltf | path join
 let input_output = $input | merge ($output | wrap "output")
 
 

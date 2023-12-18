@@ -8,19 +8,18 @@
 
 <script lang="ts">
   import { T, extend } from "@threlte/core";
-  import {
-    ContactShadows,
-    Float,
-    Grid,
-    RoundedBoxGeometry,
-    OrbitControls,
-  } from "@threlte/extras";
+  import { Float, OrbitControls } from "@threlte/extras";
   import { Pane, Slider } from "svelte-tweakpane-ui";
   import Chest from "./minecraft-xmas-chest.svelte";
   import FancyText from "./FancyText.svelte";
   import { interactivity } from "@threlte/extras";
   import { spring } from "svelte/motion";
-  interactivity();
+  interactivity({
+    filter: (hits, state) => {
+      // Only return the first hit
+      return hits.slice(0, 1);
+    },
+  });
   // One chest per day of advent
 
   //////// https://tympanus.net/Development/CubesAdventCalendar/index3.html
@@ -59,7 +58,7 @@
 </script>
 
 <T.PerspectiveCamera makeDefault position={[0, 5, 20]} fov={30}>
-  <OrbitControls enableZoom={true} enableDamping />
+  <OrbitControls enableZoom={true} enableDamping enablePan={false} />
 </T.PerspectiveCamera>
 
 <!-- Maybe https://github.com/0beqz/realism-effects -->
@@ -91,7 +90,7 @@
       on:leavetop={() => (hoveredChestTopIndex = null)}
       on:enterbottom={() => (hoveredChestBottomIndex = index)}
       on:leavebottom={() => (hoveredChestBottomIndex = null)}
-      on:click={() => {
+      on:click={(e) => {
         openChestIndex = index;
         openChestRotation = spring(0, { stiffness: 0.1, damping: 0.1 });
         $openChestRotation = Math.PI / 2;

@@ -40,6 +40,14 @@ Command: npx @threlte/gltf@2.0.1 C:\Coding\Other\advent-of-blep\static\models\mi
     import.meta.env.BASE_URL + "models/minecraft-xmas-chest.glb"
   );
 
+  gltf.subscribe((result) => {
+    if (!result) return;
+    Object.keys(result.nodes).forEach((key) => {
+      const node = result.nodes[key];
+      node.computeVertexNormals();
+    });
+  });
+
   const component = forwardEventHandlers();
 
   const enterTop = () => {

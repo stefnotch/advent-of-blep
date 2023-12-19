@@ -21,6 +21,7 @@
     "@threlte/core": "^7.0.12",
     "@threlte/extras": "^8.0.10",
     "@threlte/theatre": "^2.1.5",
+    "@types/seedrandom": "^3.0.8",
     "@types/three": "^0.159.0",
     "gh-pages": "^6.1.0",
     "svelte": "^4.2.8",
@@ -31,5 +32,8 @@
     "typescript": "^5.3.3",
     "vite": "^5.0.10"
   },
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "seedrandom": "^3.0.5"
+  }
 }

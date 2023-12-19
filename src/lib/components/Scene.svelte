@@ -9,7 +9,6 @@
 <script lang="ts">
   import { T, extend } from "@threlte/core";
   import { Float, OrbitControls } from "@threlte/extras";
-  import { Pane, Slider } from "svelte-tweakpane-ui";
   import Chest from "./minecraft-xmas-chest.svelte";
   import BigCat from "./models/big-cat.svelte";
   import BlackAndWhitePusheen from "./models/black-and-white-pusheen.svelte";

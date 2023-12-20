@@ -10,12 +10,26 @@
   import { T, extend } from "@threlte/core";
   import { Float, OrbitControls } from "@threlte/extras";
   import Chest from "./minecraft-xmas-chest.svelte";
+  import BanaCat from "./models/bana-cat.svelte";
   import BigCat from "./models/big-cat.svelte";
   import BlackAndWhitePusheen from "./models/black-and-white-pusheen.svelte";
+  import BongoCat from "./models/bongo-cat.svelte";
+  import CalicoCat from "./models/calico-cat.svelte";
+  import CuteCat from "./models/cute-cat.svelte";
   import LightOrangePusheen from "./models/light-orange-pusheen.svelte";
   import OrangeCat from "./models/orange-cat.svelte";
   import OrangePusheen from "./models/orange-pusheen.svelte";
+  import PusheenSittingSquished from "./models/pusheen-sitting-squished.svelte";
+  import PusheenSitting from "./models/pusheen-sitting.svelte";
+  import PusheenSleeping from "./models/pusheen-sleeping.svelte";
   import Pusheen from "./models/pusheen.svelte";
+  import SmolCatBlack from "./models/smol-cat-black.svelte";
+  import SmolCatEvil from "./models/smol-cat-evil.svelte";
+  import SmolCatOrange from "./models/smol-cat-orange.svelte";
+  import SmolCatPinkBad from "./models/smol-cat-pink-bad.svelte";
+  import SmolCatPinkEyes from "./models/smol-cat-pink-eyes.svelte";
+  import SmolCatTwoColor from "./models/smol-cat-two-color.svelte";
+  import SmolCatWhite from "./models/smol-cat-white.svelte";
   import FancyText from "./FancyText.svelte";
   import { interactivity } from "@threlte/extras";
   import { spring } from "svelte/motion";
@@ -26,8 +40,6 @@
     },
   });
   // One chest per day of advent
-
-  //////// https://tympanus.net/Development/CubesAdventCalendar/index3.html
 
   interface Chest {
     position: [number, number, number];

@@ -2,11 +2,16 @@
   import { T, forwardEventHandlers } from "@threlte/core";
   import FancyText from "./FancyText.svelte";
   import { Color, Group } from "three";
+  import { createEventDispatcher } from "svelte";
   export let text = "" as string;
   export let color = new Color("#ffffff");
   export let hoverColor = null as Color | null;
   export let position = [0, 0, 0] as [number, number, number];
   export let hoverDirection = 1 as 1 | -1;
+  export let opacity = 1.0;
+  export let scale = [1.0, 1.0, 1.0] as [number, number, number];
+  const dispatch = createEventDispatcher();
+
   let hoverCounter = 0;
   let isHovered = false;
   $: {
@@ -18,11 +23,8 @@
     hoverScale = isHovered ? [1.5, 1.0, 1.2] : [1.0, 1.0, 1.0];
   }
 
-  let pressCounter = 0;
   let isPressed = false;
-  $: {
-    isPressed = pressCounter > 0;
-  }
+
   let elementPosition: [number, number, number] = [0, 0, 0];
   $: {
     elementPosition = isPressed ? [0.0, 0.0, -0.1] : [0.0, 0.0, 0.0];
@@ -36,7 +38,22 @@
   function vec3Add(a: [number, number, number], b: [number, number, number]) {
     return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
   }
-  const component = forwardEventHandlers();
+
+  function click() {
+    dispatch("click");
+  }
+
+  let oldIsPressed = false;
+  $: {
+    if (oldIsPressed && !isPressed) {
+      click();
+    }
+    oldIsPressed = isPressed;
+  }
+
+  globalThis.addEventListener("pointerup", () => {
+    isPressed = false;
+  });
 </script>
 
 <T.Group position={vec3Add(elementPosition, position)}>
@@ -45,24 +62,37 @@
     color={materialColor}
     on:pointerenter={() => (hoverCounter += 1)}
     on:pointerleave={() => (hoverCounter -= 1)}
-    on:pointerdown={() => (pressCounter += 1)}
-    on:pointerup={() => (pressCounter -= 1)}
-    opacity={0.8}
+    on:pointerdown={(e) => {
+      isPressed = true;
+    }}
+    {opacity}
+    {scale}
     {...$$restProps}
-    bind:this={$component}
   ></FancyText>
-  {#if isHovered}
-    <FancyText
-      {text}
-      on:pointerenter={() => (hoverCounter += 1)}
-      on:pointerleave={() => (hoverCounter -= 1)}
-      on:pointerdown={() => (pressCounter += 1)}
-      on:pointerup={() => (pressCounter -= 1)}
-      color={materialColor}
-      position={[0.1 * hoverDirection, 0.0, 0]}
-      opacity={0.8}
-      {...$$restProps}
-      bind:this={$component}
-    ></FancyText>
-  {/if}
+  <FancyText
+    {text}
+    on:pointerenter={() => (hoverCounter += 1)}
+    on:pointerleave={() => (hoverCounter -= 1)}
+    on:pointerdown={() => {
+      isPressed = true;
+    }}
+    color={materialColor}
+    position={[0.05 * hoverDirection * scale[0], -0.01, -0.01]}
+    {scale}
+    opacity={isHovered ? opacity : 0.0}
+    {...$$restProps}
+  ></FancyText>
+  <FancyText
+    {text}
+    on:pointerenter={() => (hoverCounter += 1)}
+    on:pointerleave={() => (hoverCounter -= 1)}
+    on:pointerdown={() => {
+      isPressed = true;
+    }}
+    color={materialColor}
+    position={[0.1 * hoverDirection * scale[0], -0.01, -0.01]}
+    {scale}
+    opacity={isHovered ? opacity : 0.0}
+    {...$$restProps}
+  ></FancyText>
 </T.Group>

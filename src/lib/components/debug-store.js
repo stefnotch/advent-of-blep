@@ -1,7 +1,8 @@
 import { writable } from "svelte/store";
 
 export const globalSettings = writable({
-  a: 0,
-  b: 9.5,
-  c: 6.5,
+  a: -1.8,
+  b: 0.5,
+  c: 0.1,
+  d: -0.6,
 });

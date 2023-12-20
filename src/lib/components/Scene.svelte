@@ -33,9 +33,11 @@
   import FancyText from "./FancyText.svelte";
   import FancyButton from "./FancyButton.svelte";
   import { interactivity } from "@threlte/extras";
-  import { spring } from "svelte/motion";
+  import { spring, tweened } from "svelte/motion";
   import { Color } from "three";
   import { getNextSeed, getPreviousSeed, getSeed } from "$lib/seed";
+  import { sineIn, sineInOut } from "svelte/easing";
+  import { globalSettings } from "./debug-store";
   interactivity({
     filter: (hits, state) => {
       // Only return the first hit
@@ -69,7 +71,10 @@
   let hoveredChestTopIndex: number | null = null;
   let hoveredChestBottomIndex: number | null = null;
 
-  function vec3Add(a: [number, number, number], b: [number, number, number]) {
+  function vec3Add(
+    a: [number, number, number],
+    b: [number, number, number]
+  ): [number, number, number] {
     return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
   }
 
@@ -77,10 +82,82 @@
   let openChestIndex: number | null = null;
 
   let seed = getSeed();
+
+  const cameraTweenSettings = {
+    delay: 0,
+    duration: 1000,
+    easing: sineInOut,
+  };
+  const cameraStartPosition: [number, number, number] = [0, 6, 23];
+  let cameraPositionX = tweened(cameraStartPosition[0], cameraTweenSettings);
+  let cameraPositionY = tweened(cameraStartPosition[1], cameraTweenSettings);
+  let cameraPositionZ = tweened(cameraStartPosition[2], cameraTweenSettings);
+  $: {
+    if (openChestIndex !== null) {
+      const openChestPosition = chests[openChestIndex].position;
+      const newCameraPosition = [
+        openChestPosition[0],
+        openChestPosition[1] + 6,
+        openChestPosition[2] + 7,
+      ];
+      cameraPositionX.set(newCameraPosition[0]);
+      cameraPositionY.set(newCameraPosition[1]);
+      cameraPositionZ.set(newCameraPosition[2]);
+    } else {
+      cameraPositionX.set(cameraStartPosition[0]);
+      cameraPositionY.set(cameraStartPosition[1]);
+      cameraPositionZ.set(cameraStartPosition[2]);
+    }
+  }
+
+  const cameraStartTarget: [number, number, number] = [0, 0.5, 0];
+  let cameraNewTarget: [number, number, number] = [0, 0, 0];
+  let cameraTargetX = tweened(cameraStartTarget[0], cameraTweenSettings);
+  let cameraTargetY = tweened(cameraStartTarget[1], cameraTweenSettings);
+  let cameraTargetZ = tweened(cameraStartTarget[2], cameraTweenSettings);
+  $: {
+    if (openChestIndex !== null) {
+      const openChestPosition = chests[openChestIndex].position;
+      cameraNewTarget = [
+        openChestPosition[0],
+        openChestPosition[1] + 1.5,
+        openChestPosition[2] + 3,
+      ];
+      cameraTargetX.set(cameraNewTarget[0]);
+      cameraTargetY.set(cameraNewTarget[1]);
+      cameraTargetZ.set(cameraNewTarget[2]);
+    } else {
+      cameraTargetX.set(cameraStartTarget[0]);
+      cameraTargetY.set(cameraStartTarget[1]);
+      cameraTargetZ.set(cameraStartTarget[2]);
+    }
+  }
+
+  let openOpacity = tweened(0, {
+    delay: 0,
+    duration: 400,
+    easing: sineIn,
+  });
+  $: {
+    if (openChestIndex !== null) {
+      openOpacity.set(1);
+    } else {
+      openOpacity.set(0);
+    }
+  }
 </script>
 
-<T.PerspectiveCamera makeDefault position={[0, 5, 20]} fov={30}>
-  <OrbitControls enableZoom={true} enableDamping enablePan={false} />
+<T.PerspectiveCamera
+  makeDefault
+  position={[$cameraPositionX, $cameraPositionY, $cameraPositionZ]}
+  fov={30}
+>
+  <OrbitControls
+    enableZoom={true}
+    enableDamping
+    enablePan={false}
+    target={[$cameraTargetX, $cameraTargetY, $cameraTargetZ]}
+  />
 </T.PerspectiveCamera>
 
 <!-- Maybe https://github.com/0beqz/realism-effects -->
@@ -96,17 +173,17 @@
     hoveredChestTopIndex === index || hoveredChestBottomIndex === index}
   {@const isOpen = openChestIndex === index}
   <Float
-    floatIntensity={isHovered ? 1.5 : 1}
-    speed={isHovered ? 2.0 : 1}
-    rotationIntensity={isHovered ? 0.5 : 0.0}
-    rotationRange={[0, isHovered ? 0.05 : 0.0]}
-    rotationSpeed={isHovered ? 3 : 0.0}
+    floatIntensity={isOpen ? 0.0 : isHovered ? 1.5 : 1}
+    speed={isOpen ? 0.0 : isHovered ? 2.0 : 1}
+    rotationIntensity={isOpen ? 0.0 : isHovered ? 0.5 : 0.0}
+    rotationRange={[0, isOpen ? 0.0 : isHovered ? 0.05 : 0.0]}
+    rotationSpeed={isOpen ? 0.0 : isHovered ? 3 : 0.0}
   >
     <!-- Hmm https://github.com/mrdoob/three.js/issues/21483 -->
     <Chest
-      position={chest.position}
+      position={vec3Add(chest.position, [0, 0, isOpen ? 3 : 0])}
       rotation={[0, Math.PI, 0]}
-      scale={isHovered ? 1.1 : 1}
+      scale={isHovered && !isOpen ? 1.1 : 1}
       catPicture={chest.catPicture}
       on:entertop={() => (hoveredChestTopIndex = index)}
       on:leavetop={() => (hoveredChestTopIndex = null)}
@@ -122,10 +199,70 @@
 
     <FancyText
       text={index + 1 + ""}
-      position={vec3Add(chest.position, [-1, 1, 1])}
+      position={vec3Add(chest.position, [-1, 1, isOpen ? 4 : 1])}
+      scale={isOpen ? 0.8 : 1.0}
     ></FancyText>
   </Float>
 {/each}
+
+<T.Mesh
+  scale={[50, 50, 50]}
+  position={[0, 0, 1.4 + 50 / 2]}
+  frustumCulled={false}
+>
+  <T.BoxGeometry frustumCulled={false} />
+  <T.MeshBasicMaterial
+    color={"#000000"}
+    transparent={true}
+    opacity={$openOpacity * 0.6}
+    depthWrite={false}
+    side={2}
+  />
+</T.Mesh>
+
+{#if openChestIndex !== null}
+  <T.Mesh
+    scale={[50, 50, 0.1]}
+    position={[0, 0, 1.4]}
+    interactive
+    on:pointerup={() => {
+      openChestIndex = null;
+    }}
+  >
+    <T.BoxGeometry />
+    <T.MeshBasicMaterial
+      color={"#000000"}
+      transparent={true}
+      opacity={0.0}
+      depthWrite={false}
+    />
+  </T.Mesh>
+{/if}
+
+<!-- Display a "back" button, position is relative to the camera target -->
+<FancyButton
+  text="Back"
+  position={vec3Add(
+    cameraNewTarget,
+    openChestIndex !== null ? [-1.8, 0.5, 0.1] : [0, 0, 10000]
+  )}
+  rotation={[-0.6, 0, 0]}
+  on:click={() => {
+    console.log("back");
+    openChestIndex = null;
+  }}
+  color={new Color("#FFC000")}
+  hoverColor={new Color("#FAB0B0")}
+  hoverDirection={1}
+  scale={[0.5, 0.5, 0.5]}
+></FancyButton>
+
+<FancyText
+  text={"Year " + seed}
+  color={new Color("#13ca4a")}
+  position={[-4, 5, -3]}
+  scale={2.0}
+></FancyText>
 
 <!-- Previous and next buttons -->
 <FancyButton
@@ -140,7 +277,8 @@
   color={new Color("#FFC000")}
   hoverColor={new Color("#AFB0B0")}
   hoverDirection={-1}
-  scale={2.0}
+  scale={[2.0, 2.0, 2.0]}
+  opacity={0.8}
 ></FancyButton>
 <FancyButton
   text=">"
@@ -154,5 +292,6 @@
   color={new Color("#FFC000")}
   hoverColor={new Color("#FAB0B0")}
   hoverDirection={1}
-  scale={2.0}
+  scale={[2.0, 2.0, 2.0]}
+  opacity={0.8}
 ></FancyButton>

@@ -49,7 +49,12 @@
   <slot name="fallback" />
 {:then textGeometry}
   <T.Mesh geometry={textGeometry} {...$$restProps} bind:this={$component}>
-    <T.MeshBasicMaterial {color} transparent={true} {opacity} />
+    <T.MeshBasicMaterial
+      {color}
+      transparent={opacity < 1.0 ? true : false}
+      {opacity}
+      depthWrite={opacity < 1.0 ? false : true}
+    />
   </T.Mesh>
 {:catch error}
   <slot name="error" {error} />

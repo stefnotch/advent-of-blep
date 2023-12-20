@@ -5,11 +5,13 @@
   import { globalSettings } from "./debug-store";
 </script>
 
+<!--
 <Pane>
   <Slider bind:value={$globalSettings.a} min={-20} max={20} step={0.1} />
   <Slider bind:value={$globalSettings.b} min={-20} max={20} step={0.1} />
   <Slider bind:value={$globalSettings.c} min={-20} max={20} step={0.1} />
-</Pane>
+  <Slider bind:value={$globalSettings.d} min={-20} max={20} step={0.1} />
+</Pane>-->
 <Canvas>
   <Scene />
 </Canvas>

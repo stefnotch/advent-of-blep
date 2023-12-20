@@ -38,6 +38,8 @@
   import { getNextSeed, getPreviousSeed, getSeed } from "$lib/seed";
   import { sineIn, sineInOut } from "svelte/easing";
   import { globalSettings } from "./debug-store";
+  import seedrandom from "seedrandom";
+  import { generateName, type SpecialNameEffect } from "$lib/name-generator";
   interactivity({
     filter: (hits, state) => {
       // Only return the first hit
@@ -46,20 +48,33 @@
   });
   // One chest per day of advent
 
+  let seed = getSeed();
   interface Chest {
     position: [number, number, number];
     catPicture: number;
+    catName: [string, SpecialNameEffect];
   }
 
-  let chests: Chest[] = [];
-  for (let i = 0; i < 25; i++) {
-    // Wrap after 5 chests
-    const x = (i % 5) - 2;
-    const y = -Math.floor(i / 5) + 1.5;
-    chests.push({
-      position: [x * 2, y * 2, 0],
-      catPicture: 0,
-    });
+  let chests: Chest[] = generateChests(seed);
+  $: {
+    chests = generateChests(seed);
+  }
+
+  function generateChests(seed: number) {
+    let chestRng = seedrandom(seed + "");
+
+    let chests: Chest[] = [];
+    for (let i = 0; i < 25; i++) {
+      // Wrap after 5 chests
+      const x = (i % 5) - 2;
+      const y = -Math.floor(i / 5) + 1.5;
+      chests.push({
+        position: [x * 2, y * 2, 0],
+        catPicture: 0,
+        catName: generateName(chestRng),
+      });
+    }
+    return chests;
   }
 
   let lightSettings: LightSettings = {
@@ -80,8 +95,6 @@
 
   let openChestRotation = spring(0, { stiffness: 0.1, damping: 0.1 });
   let openChestIndex: number | null = null;
-
-  let seed = getSeed();
 
   const cameraTweenSettings = {
     delay: 0,
@@ -198,9 +211,11 @@
     ></Chest>
 
     <FancyText
-      text={index + 1 + ""}
-      position={vec3Add(chest.position, [-1, 1, isOpen ? 4 : 1])}
-      scale={isOpen ? 0.8 : 1.0}
+      text={index + 1 + "" + (isOpen ? ". " + chest.catName[0] : "")}
+      position={vec3Add(chest.position, [isOpen ? 0 : -1, 1, isOpen ? 4 : 1])}
+      rotation={[isOpen ? -0.6 : 0, 0, 0]}
+      scale={isOpen ? 0.4 : 1.0}
+      center={isOpen}
     ></FancyText>
   </Float>
 {/each}

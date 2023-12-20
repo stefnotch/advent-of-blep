@@ -2,13 +2,15 @@
   import { T, forwardEventHandlers } from "@threlte/core";
   import { FontLoader, type Font } from "three/addons/loaders/FontLoader.js";
   import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
-  import { Float } from "@threlte/extras";
-  import { Color } from "three";
+  import { Align, Float } from "@threlte/extras";
+  import { Color, Group, Vector3 } from "three";
 
   const loader = new FontLoader();
 
   export let text = "" as string;
   export let opacity = 1.0;
+  export let center = false;
+  export let position = [0, 0, 0] as [number, number, number];
 
   const font = new Promise<Font>((resolve, reject) => {
     loader.load(
@@ -48,14 +50,18 @@
 {#await textGeometry}
   <slot name="fallback" />
 {:then textGeometry}
-  <T.Mesh geometry={textGeometry} {...$$restProps} bind:this={$component}>
-    <T.MeshBasicMaterial
-      {color}
-      transparent={opacity < 1.0 ? true : false}
-      {opacity}
-      depthWrite={opacity < 1.0 ? false : true}
-    />
-  </T.Mesh>
+  <T.Group {position}>
+    <Align x={center ? 0 : 1} y={center ? 0 : 1} z={center ? 0 : 1}>
+      <T.Mesh geometry={textGeometry} {...$$restProps} bind:this={$component}>
+        <T.MeshBasicMaterial
+          {color}
+          transparent={opacity < 1.0 ? true : false}
+          {opacity}
+          depthWrite={opacity < 1.0 ? false : true}
+        />
+      </T.Mesh>
+    </Align>
+  </T.Group>
 {:catch error}
   <slot name="error" {error} />
 {/await}

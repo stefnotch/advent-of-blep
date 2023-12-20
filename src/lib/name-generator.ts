@@ -1,6 +1,6 @@
 import { type PRNG } from "seedrandom";
 
-type SpecialNameEffect = "shiny" | "small" | null;
+export type SpecialNameEffect = "shiny" | "small" | null;
 let name_start: [string, SpecialNameEffect][] = [
   ["Meepy", null],
   ["Cute", null],

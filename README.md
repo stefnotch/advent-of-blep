@@ -1,4 +1,3 @@
 # Advent of Blep
 
-@The person it's intended for  
-Nu peeking at it yet :3
+[Live on GitHub Pages](https://stefnotch.github.io/advent-of-blep/)

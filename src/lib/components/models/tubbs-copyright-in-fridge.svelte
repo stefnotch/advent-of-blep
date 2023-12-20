@@ -13,7 +13,7 @@ Command: npx @threlte/gltf@2.0.1 C:\Coding\Other\advent-of-blep\static\models\tu
     type Slots,
     forwardEventHandlers,
   } from "@threlte/core";
-  import { useGltf } from "@threlte/extras";
+  import { Align, useGltf } from "@threlte/extras";
 
   type $$Props = Props<THREE.Group>;
   type $$Events = Events<THREE.Group>;
@@ -31,13 +31,15 @@ Command: npx @threlte/gltf@2.0.1 C:\Coding\Other\advent-of-blep\static\models\tu
     };
   };
 
-  const gltf = useGltf<GLTFResult>("/models/tubbs-copyright-in-fridge.gltf");
+  const gltf = useGltf<GLTFResult>(
+    import.meta.env.BASE_URL + "models/tubbs-copyright-in-fridge.gltf"
+  );
   gltf.subscribe((result) => {
     if (!result) return;
     Object.keys(result.nodes).forEach((key) => {
       const node = result.nodes[key];
-      if (node.computeVertexNormals) {
-        node.computeVertexNormals();
+      if (node.geometry) {
+        node.geometry.computeVertexNormals();
       }
     });
   });
@@ -49,20 +51,20 @@ Command: npx @threlte/gltf@2.0.1 C:\Coding\Other\advent-of-blep\static\models\tu
   {#await gltf}
     <slot name="fallback" />
   {:then gltf}
-    <T.Mesh
-      castShadow
-      receiveShadow
-      geometry={gltf.nodes.node_1.geometry}
-      material={gltf.materials["12212233867087225693"]}
-      position={[-32, 0, -32]}
-    />
-    <T.Mesh
-      castShadow
-      receiveShadow
-      geometry={gltf.nodes.node_1_1.geometry}
-      material={gltf.materials["12212233867087225693"]}
-      position={[-32, 0, -32]}
-    />
+    <Align x={0} y={0} z={0}>
+      <T.Mesh
+        castShadow
+        geometry={gltf.nodes.node_1.geometry}
+        material={gltf.materials["12212233867087225693"]}
+        position={[-32, 0, -32]}
+      />
+      <T.Mesh
+        castShadow
+        geometry={gltf.nodes.node_1_1.geometry}
+        material={gltf.materials["12212233867087225693"]}
+        position={[-32, 0, -32]}
+      />
+    </Align>
   {:catch error}
     <slot name="error" {error} />
   {/await}

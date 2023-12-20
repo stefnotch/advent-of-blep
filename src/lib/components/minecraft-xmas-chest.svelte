@@ -44,8 +44,8 @@ Command: npx @threlte/gltf@2.0.1 C:\Coding\Other\advent-of-blep\static\models\mi
     if (!result) return;
     Object.keys(result.nodes).forEach((key) => {
       const node = result.nodes[key];
-      if (node.computeVertexNormals) {
-        node.computeVertexNormals();
+      if (node.geometry) {
+        node.geometry.computeVertexNormals();
       }
     });
   });

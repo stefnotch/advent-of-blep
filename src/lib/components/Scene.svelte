@@ -1,42 +1,15 @@
-<script lang="ts" context="module">
-  export interface LightSettings {
-    position: [number, number, number];
-    target: [number, number, number];
-    intensity: number;
-  }
-</script>
-
 <script lang="ts">
-  import { T, extend } from "@threlte/core";
-  import { Float, OrbitControls } from "@threlte/extras";
+  import { T, extend, useTask } from "@threlte/core";
+  import { ContactShadows, Float, OrbitControls } from "@threlte/extras";
   import Chest from "./minecraft-xmas-chest.svelte";
-  import BanaCat from "./models/bana-cat.svelte";
-  import BigCat from "./models/big-cat.svelte";
-  import BlackAndWhitePusheen from "./models/black-and-white-pusheen.svelte";
-  import BongoCat from "./models/bongo-cat.svelte";
-  import CalicoCat from "./models/calico-cat.svelte";
-  import CuteCat from "./models/cute-cat.svelte";
-  import LightOrangePusheen from "./models/light-orange-pusheen.svelte";
-  import OrangeCat from "./models/orange-cat.svelte";
-  import OrangePusheen from "./models/orange-pusheen.svelte";
-  import PusheenSittingSquished from "./models/pusheen-sitting-squished.svelte";
-  import PusheenSitting from "./models/pusheen-sitting.svelte";
-  import PusheenSleeping from "./models/pusheen-sleeping.svelte";
-  import Pusheen from "./models/pusheen.svelte";
-  import SmolCatBlack from "./models/smol-cat-black.svelte";
-  import SmolCatEvil from "./models/smol-cat-evil.svelte";
-  import SmolCatOrange from "./models/smol-cat-orange.svelte";
-  import SmolCatPinkBad from "./models/smol-cat-pink-bad.svelte";
-  import SmolCatPinkEyes from "./models/smol-cat-pink-eyes.svelte";
-  import SmolCatTwoColor from "./models/smol-cat-two-color.svelte";
-  import SmolCatWhite from "./models/smol-cat-white.svelte";
   import FancyText from "./FancyText.svelte";
   import FancyButton from "./FancyButton.svelte";
   import { interactivity } from "@threlte/extras";
   import { spring, tweened } from "svelte/motion";
-  import { Color } from "three";
+  import { Color, DirectionalLight } from "three";
   import { getNextSeed, getPreviousSeed, getSeed } from "$lib/seed";
   import { sineIn, sineInOut } from "svelte/easing";
+  import ShowModel, { ModelCount } from "./ShowModel.svelte";
   import { globalSettings } from "./debug-store";
   import seedrandom from "seedrandom";
   import { generateName, type SpecialNameEffect } from "$lib/name-generator";
@@ -70,16 +43,15 @@
       const y = -Math.floor(i / 5) + 1.5;
       chests.push({
         position: [x * 2, y * 2, 0],
-        catPicture: 0,
+        catPicture: Math.floor(chestRng() * ModelCount),
         catName: generateName(chestRng),
       });
     }
     return chests;
   }
 
-  let lightSettings: LightSettings = {
-    position: [20, 16.3, 10.1],
-    target: [0, 0, 0],
+  let lightSettings = {
+    position: [24, 20.3, 14.1] as [number, number, number],
     intensity: 5,
   };
 
@@ -158,6 +130,44 @@
       openOpacity.set(0);
     }
   }
+
+  function vec3Scale(
+    a: [number, number, number],
+    b: number
+  ): [number, number, number] {
+    return [a[0] * b, a[1] * b, a[2] * b];
+  }
+
+  let modelRotationY = 0;
+  function rotateModel(delta: number) {
+    modelRotationY += 1 * delta;
+    if (modelRotationY > Math.PI * 2) {
+      modelRotationY -= Math.PI * 2;
+    }
+  }
+  useTask(rotateModel);
+
+  let light = new DirectionalLight(0xffffff, 1);
+  let lightZoom = 1;
+  let lightWidth = 11 * lightZoom;
+  let lightHeight = 15 * lightZoom;
+  $: {
+    light.position.set(...lightSettings.position);
+    light.intensity = lightSettings.intensity;
+  }
+  light.castShadow = true;
+  light.shadow.mapSize.width = 512;
+  light.shadow.mapSize.height = 512;
+  light.shadow.camera.near = 20;
+  light.shadow.camera.far = 40;
+  light.shadow.camera.left = -lightWidth / 2;
+  light.shadow.camera.right = lightWidth / 2;
+  light.shadow.camera.top = lightHeight / 2;
+  light.shadow.camera.bottom = -lightHeight / 2;
+  light.shadow.camera.zoom = lightZoom;
+  light.shadow.radius = 1;
+  light.shadow.autoUpdate = true;
+  light.shadow.needsUpdate = true;
 </script>
 
 <T.PerspectiveCamera
@@ -168,17 +178,21 @@
   <OrbitControls
     enableZoom={true}
     enableDamping
+    enableRotate={false}
     enablePan={false}
     target={[$cameraTargetX, $cameraTargetY, $cameraTargetZ]}
   />
 </T.PerspectiveCamera>
 
+<T is={light} />
 <!-- Maybe https://github.com/0beqz/realism-effects -->
-<T.DirectionalLight
+<!-- <T.DirectionalLight
   intensity={lightSettings.intensity}
-  position={lightSettings.position}
+  position={vec3Scale(lightSettings.position, 1)}
   castShadow
-/>
+>
+</T.DirectionalLight> -->
+
 <T.AmbientLight intensity={0.2} />
 
 {#each chests as chest, index}
@@ -193,23 +207,32 @@
     rotationSpeed={isOpen ? 0.0 : isHovered ? 3 : 0.0}
   >
     <!-- Hmm https://github.com/mrdoob/three.js/issues/21483 -->
-    <Chest
+    <T.Group
       position={vec3Add(chest.position, [0, 0, isOpen ? 3 : 0])}
       rotation={[0, Math.PI, 0]}
       scale={isHovered && !isOpen ? 1.1 : 1}
-      catPicture={chest.catPicture}
-      on:entertop={() => (hoveredChestTopIndex = index)}
-      on:leavetop={() => (hoveredChestTopIndex = null)}
-      on:enterbottom={() => (hoveredChestBottomIndex = index)}
-      on:leavebottom={() => (hoveredChestBottomIndex = null)}
-      on:click={(e) => {
-        openChestIndex = index;
-        openChestRotation = spring(0, { stiffness: 0.1, damping: 0.1 });
-        $openChestRotation = Math.PI / 2;
-      }}
-      rotationx={isOpen ? $openChestRotation : 0}
-    ></Chest>
+    >
+      <Chest
+        catPicture={chest.catPicture}
+        on:entertop={() => (hoveredChestTopIndex = index)}
+        on:leavetop={() => (hoveredChestTopIndex = null)}
+        on:enterbottom={() => (hoveredChestBottomIndex = index)}
+        on:leavebottom={() => (hoveredChestBottomIndex = null)}
+        on:click={(e) => {
+          openChestIndex = index;
+          openChestRotation = spring(0, { stiffness: 0.1, damping: 0.1 });
+          $openChestRotation = Math.PI / 2 + 0.3;
+        }}
+        rotationx={isOpen ? $openChestRotation : 0}
+      ></Chest>
 
+      <ShowModel
+        catPicture={chest.catPicture}
+        position={[0, 1.5, isOpen ? 0 : 100000]}
+        rotationY={modelRotationY}
+        effect={chest.catName[1]}
+      ></ShowModel>
+    </T.Group>
     <FancyText
       text={index + 1 + "" + (isOpen ? ". " + chest.catName[0] : "")}
       position={vec3Add(chest.position, [isOpen ? 0 : -1, 1, isOpen ? 4 : 1])}
@@ -229,7 +252,7 @@
   <T.MeshBasicMaterial
     color={"#000000"}
     transparent={true}
-    opacity={$openOpacity * 0.6}
+    opacity={$openOpacity * 0.7}
     depthWrite={false}
     side={2}
   />
@@ -263,7 +286,6 @@
   )}
   rotation={[-0.6, 0, 0]}
   on:click={() => {
-    console.log("back");
     openChestIndex = null;
   }}
   color={new Color("#FFC000")}
@@ -289,7 +311,7 @@
       seed = nextSeed;
     }
   }}
-  color={new Color("#FFC000")}
+  color={openChestIndex === null ? new Color("#FFC000") : new Color("#634c02")}
   hoverColor={new Color("#AFB0B0")}
   hoverDirection={-1}
   scale={[2.0, 2.0, 2.0]}
@@ -304,7 +326,7 @@
       seed = nextSeed;
     }
   }}
-  color={new Color("#FFC000")}
+  color={openChestIndex === null ? new Color("#FFC000") : new Color("#634c02")}
   hoverColor={new Color("#FAB0B0")}
   hoverDirection={1}
   scale={[2.0, 2.0, 2.0]}

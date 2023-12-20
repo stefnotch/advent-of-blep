@@ -13,7 +13,7 @@ Command: npx @threlte/gltf@2.0.1 C:\Coding\Other\advent-of-blep\static\models\mi
     type Slots,
     forwardEventHandlers,
   } from "@threlte/core";
-  import { useGltf } from "@threlte/extras";
+  import { Align, useGltf } from "@threlte/extras";
 
   type $$Props = Props<THREE.Group>;
   type $$Events = Events<THREE.Group>;
@@ -31,13 +31,15 @@ Command: npx @threlte/gltf@2.0.1 C:\Coding\Other\advent-of-blep\static\models\mi
     };
   };
 
-  const gltf = useGltf<GLTFResult>("/models/minecraft-xmas-chest.glb");
+  const gltf = useGltf<GLTFResult>(
+    import.meta.env.BASE_URL + "models/minecraft-xmas-chest.glb"
+  );
   gltf.subscribe((result) => {
     if (!result) return;
     Object.keys(result.nodes).forEach((key) => {
       const node = result.nodes[key];
-      if (node.computeVertexNormals) {
-        node.computeVertexNormals();
+      if (node.geometry) {
+        node.geometry.computeVertexNormals();
       }
     });
   });
@@ -52,14 +54,12 @@ Command: npx @threlte/gltf@2.0.1 C:\Coding\Other\advent-of-blep\static\models\mi
     <T.Group scale={0.1}>
       <T.Mesh
         castShadow
-        receiveShadow
         geometry={gltf.nodes.node_1.geometry}
         material={gltf.materials["12212233865295422202"]}
         position={[-8, 0, -8]}
       />
       <T.Mesh
         castShadow
-        receiveShadow
         geometry={gltf.nodes.node_2.geometry}
         material={gltf.materials["12212233865295422202"]}
         position={[-8, 0, -8]}

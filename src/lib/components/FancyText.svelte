@@ -2,10 +2,13 @@
   import { T, forwardEventHandlers } from "@threlte/core";
   import { FontLoader, type Font } from "three/addons/loaders/FontLoader.js";
   import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
+  import { Float } from "@threlte/extras";
+  import { Color } from "three";
 
   const loader = new FontLoader();
 
   export let text = "" as string;
+  export let opacity = 1.0;
 
   const font = new Promise<Font>((resolve, reject) => {
     loader.load(
@@ -37,13 +40,17 @@
     textGeometry = createTextGeometry(text, font);
   }
 
+  export let color = new Color("#ffffff");
+
   const component = forwardEventHandlers();
 </script>
 
 {#await textGeometry}
   <slot name="fallback" />
 {:then textGeometry}
-  <T.Mesh geometry={textGeometry} {...$$restProps} bind:this={$component} />;
+  <T.Mesh geometry={textGeometry} {...$$restProps} bind:this={$component}>
+    <T.MeshBasicMaterial {color} transparent={true} {opacity} />
+  </T.Mesh>
 {:catch error}
   <slot name="error" {error} />
 {/await}

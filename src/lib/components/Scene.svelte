@@ -31,8 +31,11 @@
   import SmolCatTwoColor from "./models/smol-cat-two-color.svelte";
   import SmolCatWhite from "./models/smol-cat-white.svelte";
   import FancyText from "./FancyText.svelte";
+  import FancyButton from "./FancyButton.svelte";
   import { interactivity } from "@threlte/extras";
   import { spring } from "svelte/motion";
+  import { Color } from "three";
+  import { getNextSeed, getPreviousSeed, getSeed } from "$lib/seed";
   interactivity({
     filter: (hits, state) => {
       // Only return the first hit
@@ -72,6 +75,8 @@
 
   let openChestRotation = spring(0, { stiffness: 0.1, damping: 0.1 });
   let openChestIndex: number | null = null;
+
+  let seed = getSeed();
 </script>
 
 <T.PerspectiveCamera makeDefault position={[0, 5, 20]} fov={30}>
@@ -85,13 +90,6 @@
   castShadow
 />
 <T.AmbientLight intensity={0.2} />
-
-<BigCat position={[0, 0, 0]} />
-<BlackAndWhitePusheen position={[0, 0, 0]} />
-<LightOrangePusheen position={[0, 0, 0]} />
-<OrangeCat position={[0, 0, 0]} />
-<OrangePusheen position={[0, 0, 0]} />
-<Pusheen position={[0, 0, 0]} />
 
 {#each chests as chest, index}
   {@const isHovered =
@@ -128,3 +126,33 @@
     ></FancyText>
   </Float>
 {/each}
+
+<!-- Previous and next buttons -->
+<FancyButton
+  text="<"
+  position={[-6.3, -4, 0]}
+  on:click={() => {
+    let nextSeed = getPreviousSeed();
+    if (nextSeed !== null) {
+      seed = nextSeed;
+    }
+  }}
+  color={new Color("#FFC000")}
+  hoverColor={new Color("#AFB0B0")}
+  hoverDirection={-1}
+  scale={2.0}
+></FancyButton>
+<FancyButton
+  text=">"
+  position={[5.6, -4, 0]}
+  on:click={() => {
+    let nextSeed = getNextSeed();
+    if (nextSeed !== null) {
+      seed = nextSeed;
+    }
+  }}
+  color={new Color("#FFC000")}
+  hoverColor={new Color("#FAB0B0")}
+  hoverDirection={1}
+  scale={2.0}
+></FancyButton>

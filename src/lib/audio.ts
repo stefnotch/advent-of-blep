@@ -13,6 +13,6 @@ const audioFiles = Object.entries(audioImports).map(
 export function playRandomAudio() {
   // Play a random audio file from the audioFiles array
   const randomAudio = audioFiles[Math.floor(Math.random() * audioFiles.length)];
-  console.log(randomAudio[0]);
-  randomAudio[1].play();
+  // Dis is dumb https://stackoverflow.com/a/25654697/3492994
+  (randomAudio[1].cloneNode() as HTMLAudioElement).play();
 }

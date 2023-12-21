@@ -14,5 +14,7 @@ export function playRandomAudio() {
   // Play a random audio file from the audioFiles array
   const randomAudio = audioFiles[Math.floor(Math.random() * audioFiles.length)];
   // Dis is dumb https://stackoverflow.com/a/25654697/3492994
-  (randomAudio[1].cloneNode() as HTMLAudioElement).play();
+  const copy = randomAudio[1].cloneNode() as HTMLAudioElement;
+  copy.volume = 0.2;
+  copy.play();
 }

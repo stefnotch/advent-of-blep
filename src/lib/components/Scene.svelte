@@ -14,6 +14,7 @@
   import seedrandom from "seedrandom";
   import { generateName, type SpecialNameEffect } from "$lib/name-generator";
   import { generateChests } from "./chests";
+  import { vec3_add } from "$lib/vec3";
   interactivity({
     filter: (hits, state) => {
       // Only return the first hit
@@ -37,13 +38,6 @@
 
   let hoveredChestTopIndex: number | null = null;
   let hoveredChestBottomIndex: number | null = null;
-
-  function vec3Add(
-    a: [number, number, number],
-    b: [number, number, number]
-  ): [number, number, number] {
-    return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
-  }
 
   let openChestRotation = spring(0, { stiffness: 0.1, damping: 0.1 });
   let openChestIndex: number | null = null;
@@ -109,13 +103,6 @@
     } else {
       openOpacity.set(0);
     }
-  }
-
-  function vec3Scale(
-    a: [number, number, number],
-    b: number
-  ): [number, number, number] {
-    return [a[0] * b, a[1] * b, a[2] * b];
   }
 
   let modelRotationY = 0;
@@ -188,7 +175,7 @@
   >
     <!-- Hmm https://github.com/mrdoob/three.js/issues/21483 -->
     <T.Group
-      position={vec3Add(chest.position, [0, 0, isOpen ? 3 : 0])}
+      position={vec3_add(chest.position, [0, 0, isOpen ? 3 : 0])}
       rotation={[0, Math.PI, 0]}
       scale={isHovered && !isOpen ? 1.1 : 1}
     >
@@ -215,7 +202,7 @@
     </T.Group>
     <FancyText
       text={index + 1 + "" + (isOpen ? ". " + chest.catName[0] : "")}
-      position={vec3Add(chest.position, [isOpen ? 0 : -1, 1, isOpen ? 4 : 1])}
+      position={vec3_add(chest.position, [isOpen ? 0 : -1, 1, isOpen ? 4 : 1])}
       rotation={[isOpen ? -0.6 : 0, 0, 0]}
       scale={isOpen ? 0.4 : 1.0}
       center={isOpen}
@@ -262,7 +249,7 @@
 <!-- Display a "back" button, position is relative to the camera target -->
 <FancyButton
   text="Back"
-  position={vec3Add(
+  position={vec3_add(
     cameraNewTarget,
     openChestIndex !== null ? [-1.8, 0.5, 0.1] : [0, 0, 10000]
   )}

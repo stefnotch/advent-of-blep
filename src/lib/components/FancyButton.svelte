@@ -3,6 +3,7 @@
   import FancyText from "./FancyText.svelte";
   import { Color, Group } from "three";
   import { createEventDispatcher } from "svelte";
+  import { vec3_add, type Vec3 } from "$lib/vec3";
   export let text = "" as string;
   export let color = new Color("#ffffff");
   export let hoverColor = null as Color | null;
@@ -25,7 +26,7 @@
 
   let isPressed = false;
 
-  let elementPosition: [number, number, number] = [0, 0, 0];
+  let elementPosition: Vec3 = [0, 0, 0];
   $: {
     elementPosition = isPressed ? [0.0, 0.0, -0.1] : [0.0, 0.0, 0.0];
   }
@@ -33,10 +34,6 @@
   let materialColor = color;
   $: {
     materialColor = isHovered && !isPressed ? hoverColor ?? color : color;
-  }
-
-  function vec3Add(a: [number, number, number], b: [number, number, number]) {
-    return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
   }
 
   function click() {
@@ -56,7 +53,7 @@
   });
 </script>
 
-<T.Group position={vec3Add(elementPosition, position)}>
+<T.Group position={vec3_add(elementPosition, position)}>
   <FancyText
     {text}
     color={materialColor}

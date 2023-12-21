@@ -15,6 +15,7 @@ Command: npx @threlte/gltf@2.0.1 C:\Coding\Other\advent-of-blep\static\models\mi
     forwardEventHandlers,
   } from "@threlte/core";
   import { useGltf } from "@threlte/extras";
+  import { vec3_sub } from "$lib/vec3";
 
   const dispatch = createEventDispatcher();
 
@@ -66,18 +67,6 @@ Command: npx @threlte/gltf@2.0.1 C:\Coding\Other\advent-of-blep\static\models\mi
   };
 
   const topOffset: [number, number, number] = [0, 9.5, 6.5];
-  function vec3Add(
-    a: [number, number, number],
-    b: [number, number, number]
-  ): [number, number, number] {
-    return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
-  }
-  function vec3Scale(
-    a: [number, number, number],
-    b: number
-  ): [number, number, number] {
-    return [a[0] * b, a[1] * b, a[2] * b];
-  }
 
   export let rotationx = 0;
 </script>
@@ -96,7 +85,7 @@ Command: npx @threlte/gltf@2.0.1 C:\Coding\Other\advent-of-blep\static\models\mi
           on:pointerleave={leaveTop}
           geometry={gltf.nodes.node_1.geometry}
           material={gltf.materials["12212233865295422202"]}
-          position={vec3Add([-8, 0, -8], vec3Scale(topOffset, -1))}
+          position={vec3_sub([-8, 0, -8], topOffset)}
         /></T.Group
       >
       <T.Mesh

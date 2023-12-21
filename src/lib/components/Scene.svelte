@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { T, extend, useTask } from "@threlte/core";
-  import { ContactShadows, Float, OrbitControls } from "@threlte/extras";
+  import { T, useTask } from "@threlte/core";
+  import { Float, OrbitControls } from "@threlte/extras";
   import Chest from "./minecraft-xmas-chest.svelte";
   import FancyText from "./FancyText.svelte";
   import FancyButton from "./FancyButton.svelte";
@@ -13,41 +13,21 @@
   import { globalSettings } from "./debug-store";
   import seedrandom from "seedrandom";
   import { generateName, type SpecialNameEffect } from "$lib/name-generator";
+  import { generateChests } from "./chests";
   interactivity({
     filter: (hits, state) => {
       // Only return the first hit
       return hits.slice(0, 1);
     },
   });
-  // One chest per day of advent
+
+  let isDebug = import.meta.env.MODE === "development";
 
   let seed = getSeed();
-  interface Chest {
-    position: [number, number, number];
-    catPicture: number;
-    catName: [string, SpecialNameEffect];
-  }
 
-  let chests: Chest[] = generateChests(seed);
+  let chests = generateChests(seed, ModelCount);
   $: {
-    chests = generateChests(seed);
-  }
-
-  function generateChests(seed: number) {
-    let chestRng = seedrandom(seed + "");
-
-    let chests: Chest[] = [];
-    for (let i = 0; i < 25; i++) {
-      // Wrap after 5 chests
-      const x = (i % 5) - 2;
-      const y = -Math.floor(i / 5) + 1.5;
-      chests.push({
-        position: [x * 2, y * 2, 0],
-        catPicture: Math.floor(chestRng() * ModelCount),
-        catName: generateName(chestRng),
-      });
-    }
-    return chests;
+    chests = generateChests(seed, ModelCount);
   }
 
   let lightSettings = {
@@ -178,7 +158,7 @@
   <OrbitControls
     enableZoom={true}
     enableDamping
-    enableRotate={false}
+    enableRotate={isDebug ? true : false}
     enablePan={false}
     target={[$cameraTargetX, $cameraTargetY, $cameraTargetZ]}
   />
@@ -249,10 +229,12 @@
   frustumCulled={false}
 >
   <T.BoxGeometry frustumCulled={false} />
-  <T.MeshBasicMaterial
-    color={"#000000"}
+  <T.MeshPhysicalMaterial
+    color={"#5F5F6F"}
+    transmission={0.9}
+    roughness={0.35}
     transparent={true}
-    opacity={$openOpacity * 0.7}
+    opacity={$openOpacity * 0.8}
     depthWrite={false}
     side={2}
   />

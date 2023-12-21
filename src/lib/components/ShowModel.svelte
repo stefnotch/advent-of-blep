@@ -78,6 +78,20 @@
   $: {
     model = models[catPicture];
   }
+  let childComponent: any;
+  $: {
+    if (childComponent) {
+      childComponent.gltf.subscribe((result: any) => {
+        if (!result) return;
+        Object.keys(result.nodes).forEach((key) => {
+          const node = result.nodes[key];
+          if (node.geometry && !node.geometry.attributes.normal) {
+            node.geometry.computeVertexNormals();
+          }
+        });
+      });
+    }
+  }
 </script>
 
 <T.Group {position}>
@@ -85,7 +99,11 @@
     <T.Group scale={effect === "small" ? 0.25 : 0.5}>
       <T.Group position={model.position} rotation={[0.3, rotationY, 0]}>
         <!-- Align can miss the whole "model loaded" stuff, so we gotta force it to recompute -->
-        <svelte:component this={model.component} scale={scale * model.scale} />
+        <svelte:component
+          this={model.component}
+          scale={scale * model.scale}
+          bind:this={childComponent}
+        />
       </T.Group>
     </T.Group>
   </Float>

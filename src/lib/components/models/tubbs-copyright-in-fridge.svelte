@@ -31,18 +31,9 @@ Command: npx @threlte/gltf@2.0.1 C:\Coding\Other\advent-of-blep\static\models\tu
     };
   };
 
-  const gltf = useGltf<GLTFResult>(
+  export const gltf = useGltf<GLTFResult>(
     import.meta.env.BASE_URL + "models/tubbs-copyright-in-fridge.gltf"
   );
-  gltf.subscribe((result) => {
-    if (!result) return;
-    Object.keys(result.nodes).forEach((key) => {
-      const node = result.nodes[key];
-      if (node.geometry) {
-        node.geometry.computeVertexNormals();
-      }
-    });
-  });
 
   const component = forwardEventHandlers();
 </script>
